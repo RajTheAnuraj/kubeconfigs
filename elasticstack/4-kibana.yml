@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: elk
+spec: 
+  selector: 
+    matchLabels: 
+      app: kibana
+  strategy: 
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec: 
+      containers: 
+        - image: docker.elastic.co/kibana/kibana:7.14.0
+          name: kibana
+          env:
+            - name: ELASTICSEARCH_URL
+              value: http://elastic.elk:9200
+            - name: ELASTICSEARCH_HOSTS
+              value: '["http://elastic.elk:9200"]'
+          ports:
+            - containerPort: 5601

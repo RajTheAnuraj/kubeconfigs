@@ -1,0 +1,1 @@
+https://www.teknotut.com/en/install-vnc-server-with-gnome-display-on-ubuntu-18-04/

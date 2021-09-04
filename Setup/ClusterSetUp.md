@@ -1,3 +1,19 @@
+# Resetting stuff
+```
+sudo systemctl enable docker
+sudo systemctl enable kubelet
+systemctl daemon-reload
+systemctl restart docker
+systemctl restart kubelet
+
+kubeadm reset
+```
+
+To see the logs for errors while joining or starting cluster
+```
+journalctl -u kubelet
+```
+
 * install ubuntu on the machine
 * Enable ssh by creating a file ssh on boot partition
 * boot the system and watch for the ip that dhcp assigns for the system. It also make sense to configure DHCP reservations on your router for these devices so the device gets the same ip everytime it starts. Make sure you give an IP towards the upper limit just to make sure other devices wont steal the IP during reboot

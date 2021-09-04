@@ -14,6 +14,11 @@ To see the logs for errors while joining or starting cluster
 journalctl -u kubelet
 ```
 
+* **if you want to add a new worker node afterwards and wants the join command** Run following
+```
+kubeadm token create --print-join-command
+```
+
 * install ubuntu on the machine
 * Enable ssh by creating a file ssh on boot partition
 * boot the system and watch for the ip that dhcp assigns for the system. It also make sense to configure DHCP reservations on your router for these devices so the device gets the same ip everytime it starts. Make sure you give an IP towards the upper limit just to make sure other devices wont steal the IP during reboot

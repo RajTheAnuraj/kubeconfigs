@@ -57,6 +57,11 @@ or
 mount /mnt/folder
 ```
 
+`If you get stale volume issue later, unmount and remount.`
+```
+sudo umount -f /mnt/folder
+```
+
 * Verify by ls
 
 ```

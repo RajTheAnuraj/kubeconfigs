@@ -4,7 +4,7 @@ metadata:
   name: mysql
   namespace: mysql
 spec: 
-  replicas: 3
+  replicas: 1
   selector: 
     matchLabels: 
       app: mysql
@@ -29,8 +29,8 @@ spec:
           volumeMounts: 
             - name: mysql-persistent-storage
               mountPath: /var/lib/mysql
-      #nodeSelector:
-      #  kubernetes.io/arch: amd64
+      nodeSelector:
+        kubernetes.io/arch: amd64
       volumes:
         - name: mysql-persistent-storage
           persistentVolumeClaim: 

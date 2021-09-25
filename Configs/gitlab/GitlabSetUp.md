@@ -1,3 +1,6 @@
+You can go to [https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-gitlab-on-ubuntu-18-04]() or gitlabs own site for instructions
+
+
 ```
 sudo apt update
 sudo apt install ca-certificates curl openssh-server postfix
@@ -48,3 +51,6 @@ sudo gitlab-rake "gitlab:password:reset"
 This will ask for the user name and Password and Confirm password.  
 
 Now you can use the new pwd and log in to the url:port you configured earlier.
+
+
+If you need the repositories to be on a separate drive or something edit the above config file and search for git_data_dir. Uncomment the section and set your path and restart config

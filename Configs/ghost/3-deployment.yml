@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ghost
+  namespace: ghost
+spec: 
+  selector: 
+    matchLabels: 
+      app: ghost
+  strategy: 
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ghost
+    spec: 
+      containers: 
+        - image: ghost:latest
+          name: ghost
+          securityContext:
+            runAsUser: 4000
+            allowPrivilegeEscalation: false
+          env:
+            - name: url
+              value: http://master.local:30955
+          ports:
+            - containerPort: 2368
+          volumeMounts: 
+            - name: ghost-persistent-storage
+              mountPath: /var/lib/ghost/content
+      volumes:
+        - name: ghost-persistent-storage
+          persistentVolumeClaim: 
+            claimName: ghost-pvc

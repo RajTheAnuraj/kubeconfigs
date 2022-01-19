@@ -52,6 +52,7 @@ gitlab_rails['registry_path'] = "/var/opt/gitlab/gitlab-rails/shared/registry" -
 
 
 registry['enable'] = true
+registry['debug_addr'] = "localhost:5051" -- doing this is very important since if there are start up errors on registry you can log on to server and run http://localhost:5051/debug/health.  This is only accessible from server. but give good idea about whats wrong
 
 
 registry_nginx['enable'] = true
@@ -63,6 +64,24 @@ once this is done go ahead and call gitlabs reconfigure
 
 ```
 sudo gitlab-ctl reconfigure
+```
+
+**Very Very important**
+Something is not working look at logs
+all kind of logs present in subdirectories of `/var/log/gitlab`
+Mostly will be filesystem permission related. The below gives rights to all users. *not safe to do this in a public env*
+```
+sudo chmod -R a+rwX /mnt/hitachi 
+```
+
+* For the docker to login to http registry you need to enable insecure registry. Not recommended. But since its home lab with no external access its fine to enable. modify `/etc/docker/daemon.json` file and add your url to the `insecure-registries` collection
+```
+"insecure-registries" : ["192.168.86.109:5050"]
+```
+
+also restart docker engine to take effect
+```
+ sudo service docker restart 
 ```
 
 The above step again takes an eternity.  

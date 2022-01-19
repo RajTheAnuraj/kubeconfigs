@@ -29,9 +29,19 @@ sudo nano /etc/gitlab/gitlab.rb
 Look for `external_url` section.  
 Once you find it add the following.  This will expose the thing on given port and url
 ```
-external_url 'https://my.server.com/'
+external_url 'https://my.server.com:8888'
 nginx['listen_port'] = 8888
 nginx['listen_https'] = false
+```
+
+Its also a good idea to store the repositories on a shared drive
+Mount the drive to a folder and then edit the section in the gitlab.rb file to point the location
+```
+git_data_dirs({
+  'default' => {
+    'path' => '/mnt/hitachi/gitlab'
+  },
+})
 ```
 
 once this is done go ahead and call gitlabs reconfigure
@@ -54,3 +64,99 @@ Now you can use the new pwd and log in to the url:port you configured earlier.
 
 
 If you need the repositories to be on a separate drive or something edit the above config file and search for git_data_dir. Uncomment the section and set your path and restart config
+
+
+Now you have to configure shared runners for your ci-cd. 
+There are many ways thr runners can run. 
+Sincw we are using single server I am planning to run everything including ci-cd on that same ubuntu machine. 
+
+```
+dpkg --print-architecture 
+```
+The above command will print the cpu arch.
+Mine came as `amd64`
+
+Run the following to download the oackage. 
+Substitute the ${arch} with the amd64
+```
+curl -LJO "https://gitlab-runner-downloads.s3.amazonaws.com/latest/deb/gitlab-runner_${arch}.deb"
+```
+
+Unpack and install
+```
+dpkg -i gitlab-runner_<arch>.deb
+```
+
+That will install the thing.
+Now we need to register it with the gitlab so that gitlab can queue jobs on to this runner.
+For this first go to gitlab --> menu --> admin
+Under features card look for an option `Shared Runners`
+
+Under *Set up a shared runner manually* section you can see the url and token value. This is important
+Go back to shell and type
+```
+sudo gitlab-runner register
+```
+
+It will ask you to enter url and token. Copy paste it from gitlab screen
+
+Give approriate name and tags
+
+For runner executor type `shell` . I chose this because I have installed docker and dotnet cli on that machine. 
+So it can run these programs from the shell
+
+Complete the config , go back to gitlab and refresh.
+You can see the new shared runner added in there.
+Go to the runner and check *Run untagged jobs* options 
+
+Now you have a runner which any of your project can use.
+
+
+Now another thing you have to do is regarding user permission
+gitlab runs the ci-cd under the user context gitlab-runner
+Give this user necessaryt permissions to your folders where you want artifacts to be stored etc
+Also add this user to docker group so that it can run docker command
+
+The below prints all groups which the user belongs to
+```
+groups gitlab-runner
+```
+
+Run the following command to add the user to docker group
+```
+sudo usermod -aG docker gitlab-runner
+```
+
+Setting up the pipeline
+
+When you create project you can create .gitlab-ci.yml file where all your steps are stored
+Below is a sample
+
+```
+stages:
+  - build
+  - test
+  - release
+
+build:
+  stage: build
+  script:
+    - dotnet build 
+
+test:
+  stage: test
+  script:
+    - dotnet test
+
+release:
+  stage: release
+  only:
+    - master
+  artifacts:
+    paths:
+      - publish/
+  script:
+    - echo $USER
+    - docker build -t aspnetapp:v5 App/.
+    - docker save -o /home/git/docker/aspnetapp.tar aspnetapp:v5
+```

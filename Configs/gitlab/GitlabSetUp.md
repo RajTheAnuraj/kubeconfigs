@@ -74,16 +74,6 @@ Mostly will be filesystem permission related. The below gives rights to all user
 sudo chmod -R a+rwX /mnt/hitachi 
 ```
 
-* For the docker to login to http registry you need to enable insecure registry. Not recommended. But since its home lab with no external access its fine to enable. modify `/etc/docker/daemon.json` file and add your url to the `insecure-registries` collection
-```
-"insecure-registries" : ["192.168.86.109:5050"]
-```
-
-also restart docker engine to take effect
-```
- sudo service docker restart 
-```
-
 The above step again takes an eternity.  
 
 After this you can look at the output of the first gitlab-ee install for the root pwd
@@ -98,6 +88,16 @@ Now you can use the new pwd and log in to the url:port you configured earlier.
 
 
 If you need the repositories to be on a separate drive or something edit the above config file and search for git_data_dir. Uncomment the section and set your path and restart config
+
+* For the docker to login to http registry you need to enable insecure registry. Not recommended. But since its home lab with no external access its fine to enable. modify `/etc/docker/daemon.json` file and add your url to the `insecure-registries` collection
+```
+"insecure-registries" : ["192.168.86.109:5050"]
+```
+
+also restart docker engine to take effect
+```
+ sudo service docker restart 
+```
 
 # CI CD
 Now you have to configure shared runners for your ci-cd. 

@@ -99,6 +99,8 @@ also restart docker engine to take effect
  sudo service docker restart 
 ```
 
+*Please note you can add the docker registries on any of your docker environment using the urls you configured `192.168.86.190:5050`. The authentication user id and password will be gitlab users credentails*
+
 # CI CD
 Now you have to configure shared runners for your ci-cd. 
 There are many ways thr runners can run. 

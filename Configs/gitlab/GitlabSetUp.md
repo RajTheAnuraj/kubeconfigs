@@ -44,6 +44,21 @@ git_data_dirs({
 })
 ```
 
+* Enabling container registry
+Modify the following settings in gitlab.rb file
+```
+registry_external_url 'https://registry.example.com' -- Set this to your root url ex: http://192.168.33.109
+gitlab_rails['registry_path'] = "/var/opt/gitlab/gitlab-rails/shared/registry" -- Set to your path. /mnt/whatever
+
+
+registry['enable'] = true
+
+
+registry_nginx['enable'] = true
+registry_nginx['listen_port'] = 5050
+registry_nginx['listen_https'] = false  --This particular one has to be added
+```
+
 once this is done go ahead and call gitlabs reconfigure
 
 ```
@@ -65,7 +80,7 @@ Now you can use the new pwd and log in to the url:port you configured earlier.
 
 If you need the repositories to be on a separate drive or something edit the above config file and search for git_data_dir. Uncomment the section and set your path and restart config
 
-
+# CI CD
 Now you have to configure shared runners for your ci-cd. 
 There are many ways thr runners can run. 
 Sincw we are using single server I am planning to run everything including ci-cd on that same ubuntu machine. 
@@ -127,6 +142,7 @@ Run the following command to add the user to docker group
 sudo usermod -aG docker gitlab-runner
 ```
 
+
 Setting up the pipeline
 
 When you create project you can create .gitlab-ci.yml file where all your steps are stored
@@ -160,3 +176,39 @@ release:
     - docker build -t aspnetapp:v5 App/.
     - docker save -o /home/git/docker/aspnetapp.tar aspnetapp:v5
 ```
+
+
+# Installing Nuget 
+* First Install Mono
+```
+sudo apt install gnupg ca-certificates
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+sudo apt update
+sudo apt install mono-devel
+```
+
+* Download the latest stable `nuget.exe` to `/usr/local/bin`
+```
+sudo curl -o /usr/local/bin/nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+```
+
+* Add symlink to /bin so it can be called nuget instead of /usr/local/bin/nuget.exe
+```
+sudo ln /usr/local/bin/nuget.exe /bin/nuget
+```
+
+* Now we could use the below in the cicd pipeline to push into the repository]
+```
+deploy:
+  stage: deploy
+  script:
+    - dotnet pack -c Release
+    - dotnet nuget add source "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/nuget/index.json" --name gitlab --username gitlab-ci-token --password $CI_JOB_TOKEN --store-password-in-clear-text
+    - dotnet nuget push "bin/Release/*.nupkg" --source gitlab
+  only:
+    - main
+```
+
+*Might be a good idea to create a new project just to store all your nuget packages. That ways the packages are stored separate from project and there will be only one nuget source to be configured*
+

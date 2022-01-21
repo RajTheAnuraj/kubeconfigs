@@ -43,3 +43,6 @@ docker run -d --rm --name kong \
 * Note we volume mount nfsvolume where we have the kong files to /home/kong 
 * also note that the start command is passing the configuration file path
 
+# Kong UI
+
+docker run -d --rm -p 1337:1337 --name konga -e "NODE_ENV=production" -e "TOKEN_SECRET=blingassya" pantsel/konga

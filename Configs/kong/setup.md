@@ -15,6 +15,54 @@ services:
   - name: dashboard
     paths:
     - /
+- name: proxmox
+  url: https://192.168.86.251:8006
+  routes:
+  - name: proxmox
+    paths:
+    - /proxmox
+- name: ghost
+  url: http://192.168.86.241:30955/ghost
+  routes:
+  - name: ghostadmin
+    paths:
+    - /ghostadmin
+- name: ghost
+  url: http://192.168.86.241:30955
+  routes:
+  - name: ghost
+    paths:
+    - /ghost
+- name: draw
+  url: http://192.168.86.241:30080
+  routes:
+  - name: draw
+    paths:
+    - /draw
+- name: kong
+  url: http://192.168.86.109:1337
+  routes:
+  - name: kong
+    paths:
+    - /kong
+- name: kibana
+  url: http://192.168.86.241:30921
+  routes:
+  - name: kibana
+    paths:
+    - /kibana
+- name: kube
+  url: http://192.168.86.241:30777
+  routes:
+  - name: kube
+    paths:
+    - /kube
+- name: portainer
+  url: http://192.168.86.250:9000
+  routes:
+  - name: portainer
+    paths:
+    - /portainer'
 ```
 
 * Now create another file as kong.conf in this repo. That is the default config of kong only modified property is `declarative_config`. This points to the folder where our kong.yaml is mounted.
@@ -46,3 +94,69 @@ docker run -d --rm --name kong \
 # Kong UI
 
 docker run -d --rm -p 1337:1337 --name konga -e "NODE_ENV=production" -e "TOKEN_SECRET=blingassya" pantsel/konga
+
+
+You can also reload the config using the config endpoint of management api. This is very useful
+
+```
+curl -i -X POST http://master.local:8001/config \
+-d '_format_version: "2.1"
+
+services:
+- name: my-link-app
+  url: http://192.168.86.250:30033
+  routes:
+  - name: dashboard
+    paths:
+    - /
+- name: proxmox
+  url: https://192.168.86.251:8006
+  routes:
+  - name: proxmox
+    paths:
+    - /proxmox
+- name: ghost
+  url: http://192.168.86.241:30955/ghost
+  routes:
+  - name: ghostadmin
+    paths:
+    - /ghostadmin
+- name: ghost
+  url: http://192.168.86.241:30955
+  routes:
+  - name: ghost
+    paths:
+    - /ghost
+- name: draw
+  url: http://192.168.86.241:30080
+  routes:
+  - name: draw
+    paths:
+    - /draw
+- name: kong
+  url: http://192.168.86.109:1337
+  routes:
+  - name: kong
+    paths:
+    - /kong
+- name: kibana
+  url: http://192.168.86.241:30921
+  routes:
+  - name: kibana
+    paths:
+    - /kibana
+- name: kube
+  url: http://192.168.86.241:30777
+  routes:
+  - name: kube
+    paths:
+    - /kube
+- name: portainer
+  url: http://192.168.86.250:9000
+  routes:
+  - name: portainer
+    paths:
+    - /portainer'
+```
+
+http://master.local:30777
